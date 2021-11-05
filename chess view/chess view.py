@@ -122,7 +122,7 @@ for i in range(x+1):
         if rangexx[6]<=i< rangexx[7] and rangeyy[6]<=j<rangeyy[7]:
             img[i][j]=0
 #//////////////////////////////////////////////////////////////////  white  /////////////////////////////////////////////////////////
-
+"""
         if rangexx[0]<=i< rangexx[1] and j<=rangeyy[0]:
             img[i][j]=255
 
@@ -218,7 +218,9 @@ for i in range(x+1):
 
         if rangexx[5]<=i< rangexx[6] and rangeyy[6]<=j<rangeyy[7]:
             img[i][j]=255
-
+"""
+        else:
+            img[i][j]=255
 
 cv2.imwrite('new1.1.png',img)
 cv2.imshow('new1.1.png',img)
