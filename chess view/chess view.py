@@ -219,6 +219,7 @@ for i in range(x+1):
         if rangexx[5]<=i< rangexx[6] and rangeyy[6]<=j<rangeyy[7]:
             img[i][j]=255
 
+      
 
 cv2.imwrite('new1.1.png',img)
 cv2.imshow('new1.1.png',img)
