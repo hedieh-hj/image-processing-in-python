@@ -1,74 +1,106 @@
 import cv2
-import numpy as np
+import cvzone
 
 
-film=cv2.VideoCapture(0)
-sticker=cv2.imread('sticker1.png')
-#sticker2=cv2.imread('st1.png')
-sticker2=cv2.imread('st3.png')
-smilest=cv2.imread('smile.jpg')
-eyest=cv2.imread('eye.jpg')
-#eye2st=cv2.imread('st2.png')
 
-face_detector = cv2.CascadeClassifier(cv2.data.haarcascades +"haarcascade_frontalface_default.xml")
-smile_detector=cv2.CascadeClassifier(cv2.data.haarcascades +"haarcascade_smile.xml")
-eye_detector=cv2.CascadeClassifier(cv2.data.haarcascades +"haarcascade_eye.xml")
+flag = 0
+
+def change_face(frame,f):
+
+    faces = face_detector.detectMultiScale(frame ,1.3)
+
+    for (x , y , w , h) in faces:
+        emoji_resized = cv2.resize(face_emoji , (w,h))
+        frame = cvzone.overlayPNG(frame, emoji_resized, [x,y])
+        
+    f = 1
+
+    return frame,f
 
 
-while True:
-    ret , frame=film.read()
+def change_eyes(frame,f):
 
-    if ret==False:
+    faces = eyes_detector.detectMultiScale(frame ,1.1, minSize=(20,20),maxSize=(35,35))
+
+    for (x , y , w , h) in faces:
+        emoji_resized = cv2.resize(eyes_emoji , (w,h))
+        frame = cvzone.overlayPNG(frame, emoji_resized, [x,y])
+        
+    f = 2
+
+    return frame,f
+
+
+
+def change_lips(frame,f):
+
+    faces = lips_detector.detectMultiScale(frame , 1.34, 29)
+
+    for (x , y , w , h) in faces:
+        emoji_resized = cv2.resize(lips_emoji , (w,h))
+        frame = cvzone.overlayPNG(frame, emoji_resized, [x,y])
+        
+    f = 3
+
+    return frame,f
+
+
+def blur_face(frame,f):
+
+    faces = face_detector.detectMultiScale(frame , 1.2)
+
+    for (x , y , w , h) in faces:
+
+        image_blur = frame[y:y+h,x:x+w]
+        image_blur = cv2.resize(image_blur,(int(w//10),int(h//10)))
+        image_blur = cv2.resize(image_blur,(w,h))
+        frame[y:y+h,x:x+w] = image_blur
+        
+    f = 4
+
+    return frame,f
+
+
+face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+eyes_detector = cv2.CascadeClassifier('haarcascade_eye.xml')
+lips_detector = cv2.CascadeClassifier('haarcascade_smile.xml')
+
+face_emoji = cv2.imread('emoji.png',cv2.IMREAD_UNCHANGED)
+eyes_emoji = cv2.imread('eye2.png',cv2.IMREAD_UNCHANGED)
+lips_emoji = cv2.imread('smile2.png',cv2.IMREAD_UNCHANGED)
+
+
+vedio_cap = cv2.VideoCapture(0)
+
+while 1:
+
+    ret , frame = vedio_cap.read()
+
+    if ret == False:
         break
 
+    frame = cv2.resize(frame, (0, 0), fx=0.75 , fy=0.75)
+    #frame,flag =change_face(frame, flag)
 
-    frame=cv2.resize(frame,(400,550)) #taghir size 
-    #frame_gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)  # sefid o siah
 
-
-    faces = face_detector.detectMultiScale(frame ,1.5)
-    smile=smile_detector.detectMultiScale(frame ,1.5)
-    eye=eye_detector.detectMultiScale(frame ,1.5)
+    press = cv2.waitKey(1)
+    if press == ord('0'):
+        flag = 0
+    if press == ord('5'):
+        break
+    if press == ord('1') or flag == 1:
+        frame,flag = change_face(frame, flag)
+    if press == ord('2') or flag == 2:
+        frame, flag = change_eyes(frame, flag)
+    if press == ord('3') or flag == 3:
+        frame, flag = change_lips(frame, flag)
+    if press == ord('4') or flag == 4:
+        frame, flag = blur_face(frame, flag)
+    
+    cv2.imshow('result', frame)
+    
     
 
-    for x , y , w , h in faces:
-    
-        cv2.rectangle(frame , (x,y) , (w+x,h+y) , (0,255,0) , 4)
 
 
 
-        cv2.rectangle(frame , (x,y) , (w+x,h+y) , (0,255,0) , 4)
-        sticker_resized = cv2.resize(sticker2 , (w,h))
-        frame[y:y+h,x:x+w] = sticker_resized
-        
-       #####  censor  #####
-
-
-        cv2.rectangle(frame , (x,y) , (w+x,h+y) , (0,255,0) , 4)
-        select = frame[y:y+h, x:x+w]
-        # applying a gaussian blur over this new rectangle area
-        select = cv2.GaussianBlur(select, (49, 49), 30)
-        # impose this blurred image on original image to get final image
-        frame[y:y+select.shape[0], x:x+select.shape[1]] = select
-
-
-
-       #####  emoji  #####
-
-        for (sx, sy, sw, sh) in smile:
-            cv2.rectangle(frame, (sx, sy), ((sx + sw), (sy + sh)), (0, 0, 255),1)
-            sticker_resized = cv2.resize(smilest , (sw,sh))
-            frame[sy:sy+sh,sx:sx+sw] = sticker_resized
-            
-
-
-        for (ex, ey, ew, eh) in eye:
-            cv2.rectangle(frame, (ex, ey), ((ex + ew), (ey + eh)), (0, 0, 255), 1)
-            sticker_resized = cv2.resize(eyest , (ew,eh))
-            frame[ey:ey+eh,ex:ex+ew] = sticker_resized  
-              
-
-
-    cv2.imshow('video',frame)
-    cv2.waitKey(10) #time midim ke chand saniye be saniye avaz kone frame ra 
-    
