@@ -1,5 +1,6 @@
 import cv2
 import cvzone
+import numpy as np 
 
 
 
@@ -61,6 +62,19 @@ def blur_face(frame,f):
     return frame,f
 
 
+def opaque(frame,f,x,y):
+
+    target=frame[x//2 -130 : x//2 +130 ,y//2 -150:y//2 +150 ]
+
+    kernel=np.ones((45,45))/2025
+    frame=cv2.filter2D(frame,-1,kernel)
+
+    frame[x//2 -130 : x//2 +130 ,y//2 -150:y//2 +150 ]=target
+
+    cv2.rectangle (frame, ( y//2 -150 ,x//2 -130 ),(y//2 +150 , x//2 +130 ),None,1)
+   
+    return frame,f
+
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eyes_detector = cv2.CascadeClassifier('haarcascade_eye.xml')
 lips_detector = cv2.CascadeClassifier('haarcascade_smile.xml')
@@ -80,13 +94,14 @@ while 1:
         break
 
     frame = cv2.resize(frame, (0, 0), fx=0.75 , fy=0.75)
+    x,y,z=frame.shape
     #frame,flag =change_face(frame, flag)
 
 
     press = cv2.waitKey(1)
     if press == ord('0'):
         flag = 0
-    if press == ord('5'):
+    if press == ord('6'):
         break
     if press == ord('1') or flag == 1:
         frame,flag = change_face(frame, flag)
@@ -96,6 +111,9 @@ while 1:
         frame, flag = change_lips(frame, flag)
     if press == ord('4') or flag == 4:
         frame, flag = blur_face(frame, flag)
+    if press == ord('5') or flag == 5:
+        frame, flag = opaque(frame, flag,x,y)
+        
     
     cv2.imshow('result', frame)
     
