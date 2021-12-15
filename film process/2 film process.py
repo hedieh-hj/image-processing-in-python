@@ -64,6 +64,7 @@ def blur_face(frame,f):
 
 def opaque(frame,f,x,y):
 
+    
     target=frame[x//2 -130 : x//2 +130 ,y//2 -150:y//2 +150 ]
 
     kernel=np.ones((45,45))/2025
@@ -74,6 +75,29 @@ def opaque(frame,f,x,y):
     cv2.rectangle (frame, ( y//2 -150 ,x//2 -130 ),(y//2 +150 , x//2 +130 ),None,1)
    
     return frame,f
+
+
+
+def blur_face2(frame,f,x1,y1):
+
+    faces = face_detector.detectMultiScale(frame , 1.2)
+
+    for (x , y , w , h) in faces:
+
+        # #cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        select = frame[y:y+h, x:x+w]
+        
+        select = cv2.GaussianBlur(select, (49, 49), 30)
+      
+        frame[y:y+select.shape[0], x:x+select.shape[1]] = select       
+
+
+     
+    f = 6
+
+    return frame,f
+
+
 
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eyes_detector = cv2.CascadeClassifier('haarcascade_eye.xml')
@@ -101,7 +125,7 @@ while 1:
     press = cv2.waitKey(1)
     if press == ord('0'):
         flag = 0
-    if press == ord('6'):
+    if press == ord('7'):
         break
     if press == ord('1') or flag == 1:
         frame,flag = change_face(frame, flag)
@@ -113,7 +137,8 @@ while 1:
         frame, flag = blur_face(frame, flag)
     if press == ord('5') or flag == 5:
         frame, flag = opaque(frame, flag,x,y)
-        
+    if press == ord('6') or flag == 6:
+        frame, flag = blur_face2(frame, flag,x,y)       
     
     cv2.imshow('result', frame)
     
