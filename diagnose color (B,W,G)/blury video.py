@@ -13,6 +13,7 @@ while True:
     x,y,z=frame.shape
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cv2.equalizeHist(frame)
 
     target=frame[x//2 -180 : x//2 +180 ,y//2 -250:y//2 +250 ]
 
